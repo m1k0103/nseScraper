@@ -35,30 +35,31 @@ def getTeamPlayers(teamurl):
         playerRole = "Leader" if "Leader" in str(playerSoup) else "Player"
         allPlayerData.append([playerName, playerUrl, playerRole])
         print(playerName, playerUrl, playerRole)
+        writePlayerDataToFile([playerName, playerUrl, playerRole])
     return allPlayerData # returns in format [[name,url,role], [...], ...]
     
 
 def writePlayerDataToFile(data):
-    with open("players.txt", "a") as f:
-        f.write(f"{data[0][0]} | {data[0][1]} | {data[0][2]}\n")
-    return
+    with open("players.txt", "a", encoding="utf-8") as f:
+        f.write(f"{data[0]} | {data[1]} | {data[2]}\n")
 
 
 
 if __name__ == "__main__":
     # gets all teams from a leaderboard page
     all_teams = []
-    for i in range(6):
+    for i in range(7):
         all_teams.extend(getTeamLeaderboard(i))
 
     # get only team urls and feed them into func which gets all players in each team
     team_urls = [i[1] for i in all_teams]
     with Pool(cpu_count()) as p:
-        results = p.map(getTeamPlayers, team_urls)
-
+        try:
+            results = p.map(getTeamPlayers, team_urls)
+        except IndexError as e:
+            print(f"!!! IndexError occurred: {e}")
     # write all players to file
-    for i in results:
-        writePlayerDataToFile(i)
+    #for i in results:
+    #    writePlayerDataToFile(i)
 
-
-    getTeamPlayers(team_urls[0])
+    print("done")
